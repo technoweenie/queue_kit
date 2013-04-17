@@ -5,7 +5,14 @@ module QueueKit
       @on_pop = options.fetch(:on_pop) {}
       @on_error = options.fetch(:on_error) { lambda { |e| raise e } }
       @after_work = options.fetch(:after_work) { lambda {} }
+      @instrumenter = options.fetch(:instrumenter) { PutsInstrumenter.new }
       @stopped = true
+
+      if options.fetch(:debug) { false }
+        class << self
+          alias debug force_debug
+        end
+      end
     end
 
     def run
@@ -40,15 +47,35 @@ module QueueKit
         raise "Needs something to do with an item.  Set #on_pop"
       end
 
+      instrument :start
       @stopped = false
     end
 
     def stop
+      instrument :stop
       @stopped = true
     end
 
     def working?
       !@stopped
+    end
+
+    def instrument(name, payload = nil)
+      (payload ||= {}).update(:worker => self)
+      @instrumenter.instrument("queuekit.#{name}", payload)
+    end
+
+    def force_debug
+      instrument(*yield)
+    end
+
+    def debug
+    end
+
+    class PutsInstrumenter
+      def instrument(name, payload = nil)
+        puts "[#{Time.now}] #{name}: #{payload.inspect}"
+      end
     end
   end
 end

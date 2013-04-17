@@ -19,6 +19,7 @@ module QueueKit
         trap_method = "trap_#{sig}"
         return unless @handler.respond_to?(trap_method)
         trap sig do
+          @worker.debug { [:trap, {:signal => sig}] }
           @handler.send(trap_method, @worker)
         end
       end
