@@ -24,6 +24,11 @@ module QueueKit
       end
     end
 
+    def procline(string)
+      $0 = "QueueKit-#{QueueKit::Version}: #{string}"
+      debug { ["worker.procline", {:message => string}] }
+    end
+
     def on_pop(&block)
       @on_pop = block
     end
