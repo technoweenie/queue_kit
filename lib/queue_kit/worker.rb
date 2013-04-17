@@ -19,6 +19,7 @@ module QueueKit
       start
       loop do
         working? ? work : break
+        debug { "worker.interval" }
         @after_work.call
       end
     end
@@ -47,12 +48,12 @@ module QueueKit
         raise "Needs something to do with an item.  Set #on_pop"
       end
 
-      instrument :start
+      instrument "worker.start"
       @stopped = false
     end
 
     def stop
-      instrument :stop
+      instrument "worker.stop"
       @stopped = true
     end
 
