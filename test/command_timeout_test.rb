@@ -1,5 +1,5 @@
 require File.expand_path("../helper", __FILE__)
-require File.expand_path("../../lib/queue_kit/clients/command_timeout", __FILE__)
+QueueKit.require_lib 'clients/command_timeout'
 
 class CommandTimeoutTest < Test::Unit::TestCase
   include QueueKit::Clients::CommandTimeout

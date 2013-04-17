@@ -1,8 +1,17 @@
 module QueueKit
   VERSION = "0.0.1"
-end
+  ROOT = File.expand_path("../queue_kit", __FILE__)
 
-%w(worker).each do |lib|
-  require File.expand_path("../queue_kit/#{lib}", __FILE__)
+  def self.require_lib(*libs)
+    libs.each do |lib|
+      require File.join(ROOT, lib.to_s)
+    end
+  end
+
+  class << self
+    alias require_libs require_lib
+  end
+
+  require_lib "worker"
 end
 

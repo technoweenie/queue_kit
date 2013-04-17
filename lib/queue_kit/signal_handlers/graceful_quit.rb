@@ -1,6 +1,6 @@
-require File.expand_path("../../signal_checker", __FILE__)
-
 module QueueKit
+  require_lib 'signal_checker'
+
   module GracefulQuit
     extend self
 

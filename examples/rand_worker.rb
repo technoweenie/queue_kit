@@ -1,5 +1,5 @@
 require File.expand_path("../../lib/queue_kit", __FILE__)
-require File.expand_path("../../lib/queue_kit/signal_handlers/graceful_quit", __FILE__)
+QueueKit.require_lib 'signal_handlers/graceful_quit'
 
 queue = Object.new
 def queue.pop
