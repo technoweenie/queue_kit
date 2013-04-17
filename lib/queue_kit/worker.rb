@@ -42,8 +42,14 @@ module QueueKit
     end
 
     def work
-      item = @queue.pop
-      @on_pop.call(item) if item
+      handle_error do
+        item = @queue.pop
+        @on_pop.call(item) if item
+      end
+    end
+
+    def handle_error
+      yield
     rescue Exception => exception
       @on_error.call(exception)
     end
