@@ -6,7 +6,7 @@ def queue.pop
   rand 10
 end
 
-worker = QueueKit::Worker.new :queue => queue
+worker = QueueKit::Worker.new :queue => queue, :debug => ENV['DEBUG'] == '1'
 worker.on_pop do |num|
   puts num
 end
