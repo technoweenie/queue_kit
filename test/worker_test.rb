@@ -7,8 +7,8 @@ class WorkerTest < Test::Unit::TestCase
     calls = 0
     worker = QueueKit::Worker.new :queue => queue
 
-    worker.on_pop do |job|
-      items << job.item
+    worker.on_pop do |item|
+      items << item
     end
 
     worker.after_work do
@@ -25,14 +25,13 @@ class WorkerTest < Test::Unit::TestCase
 
   def test_custom_on_error
     worker = QueueKit::Worker.new :queue => [1]
-    worker.on_pop do |job|
+    worker.on_pop do |item|
       raise 'booya'
     end
 
     called = false
-    worker.on_error do |job, exc|
+    worker.on_error do |exc|
       called = true
-      assert_equal 1, job.item
       assert_equal 'booya', exc.message
     end
 
@@ -43,8 +42,8 @@ class WorkerTest < Test::Unit::TestCase
 
   def test_default_on_error
     worker = QueueKit::Worker.new :queue => [1]
-    worker.on_pop do |job|
-      raise job.item.to_s
+    worker.on_pop do |item|
+      raise item.to_s
     end
 
     begin
@@ -60,9 +59,9 @@ class WorkerTest < Test::Unit::TestCase
     called = false
     worker = QueueKit::Worker.new :queue => [1, nil]
 
-    worker.on_pop do |job|
+    worker.on_pop do |item|
       fail "callback called multiple times" if called
-      assert_equal 1, job.item
+      assert_equal 1, item
       called = true
       worker.stop
     end
