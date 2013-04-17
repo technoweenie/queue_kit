@@ -17,9 +17,11 @@ module QueueKit
 
     def run
       start
+      interval_debugger = lambda { "worker.interval" }
+
       loop do
         working? ? work : break
-        debug { "worker.interval" }
+        debug(&interval_debugger)
         @after_work.call
       end
     end
