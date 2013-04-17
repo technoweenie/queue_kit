@@ -14,17 +14,15 @@ module QueueKit
       @queue = options.fetch(:queue) { [] }
       @on_pop = options.fetch(:on_pop) {}
       @on_error = options.fetch(:on_error) { method(:default_on_error) }
+      @after_work = options.fetch(:after_work) { lambda {} }
       @stopped = true
     end
 
     def run
       start
       loop do
-        if working?
-          work
-        else
-          break
-        end
+        working? ? work : break
+        @after_work.call
       end
     end
 
@@ -34,6 +32,10 @@ module QueueKit
 
     def on_error(&block)
       @on_error = block
+    end
+
+    def after_work(&block)
+      @after_work = block
     end
 
     def work

@@ -1,6 +1,28 @@
 require File.expand_path("../helper", __FILE__)
 
 class WorkerTest < Test::Unit::TestCase
+  def test_after_work
+    items = []
+    queue = [1,2,3,4,5]
+    calls = 0
+    worker = QueueKit::Worker.new :queue => queue
+
+    worker.on_pop do |job|
+      items << job.item
+    end
+
+    worker.after_work do
+      calls += 1
+      worker.stop if items.size > 2
+    end
+
+    worker.run
+
+    assert_equal 3, calls
+    assert_equal [5, 4, 3], items
+    assert_equal [1, 2], queue
+  end
+
   def test_custom_on_error
     worker = QueueKit::Worker.new :queue => [1]
     worker.on_pop do |job|
@@ -36,7 +58,7 @@ class WorkerTest < Test::Unit::TestCase
 
   def test_breaks_when_stopped
     called = false
-    worker = QueueKit::Worker.new :queue => [nil, 1]
+    worker = QueueKit::Worker.new :queue => [1, nil]
 
     worker.on_pop do |job|
       fail "callback called multiple times" if called
