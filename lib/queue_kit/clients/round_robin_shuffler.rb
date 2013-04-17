@@ -1,7 +1,7 @@
 module QueueKit
   module Clients
     module RoundRobinShuffler
-      def current_client
+      def client
         @client_command_count += 1
 
         if @client_command_count > commands_per_client

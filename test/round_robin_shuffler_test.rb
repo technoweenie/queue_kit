@@ -9,17 +9,17 @@ class RoundRobinShufflerTest < Test::Unit::TestCase
   def test_shuffles_solitary_client
     set_clients 1
 
-    assert_equal 1, current_client
-    assert_equal 1, current_client
-    assert_equal 1, current_client
+    assert_equal 1, client
+    assert_equal 1, client
+    assert_equal 1, client
   end
 
   def test_shuffles_clients
     set_clients 1, 2
 
-    assert_equal 1, current_client
-    assert_equal 1, current_client
-    assert_equal 2, current_client
+    assert_equal 1, client
+    assert_equal 1, client
+    assert_equal 2, client
   end
 
   def commands_per_client
