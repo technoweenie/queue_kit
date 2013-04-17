@@ -2,7 +2,7 @@ module QueueKit
   class SignalChecker
     COMMON_SIGNALS = %w(TERM INT)
     JRUBY_SIGNALS = %w(QUIT USR1)
-    OPTIONAL_SIGNALS = %w(USR2 CONT)
+    OPTIONAL_SIGNALS = %w(USR2 CONT HUP)
 
     attr_reader :worker
     attr_reader :handler
