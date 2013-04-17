@@ -3,7 +3,7 @@ module QueueKit
     def initialize(options = {})
       @queue = options.fetch(:queue) { [] }
       @on_pop = options.fetch(:on_pop) {}
-      @on_error = options.fetch(:on_error) { method(:default_on_error) }
+      @on_error = options.fetch(:on_error) { lambda { |e| raise e } }
       @after_work = options.fetch(:after_work) { lambda {} }
       @stopped = true
     end
@@ -49,10 +49,6 @@ module QueueKit
 
     def working?
       !@stopped
-    end
-
-    def default_on_error(exception)
-      raise exception
     end
   end
 end
