@@ -1,8 +1,19 @@
 module QueueKit
   class Worker
+    class Job < Struct.new(:item, :payload)
+      def payload
+        self[:payload] ||= {}
+      end
+
+      def call?
+        !self[:item].nil?
+      end
+    end
+
     def initialize(options = {})
       @queue = options.fetch(:queue) { [] }
       @on_pop = options.fetch(:on_pop) {}
+      @on_error = options.fetch(:on_error) { method(:default_on_error) }
       @stopped = true
     end
 
@@ -21,9 +32,15 @@ module QueueKit
       @on_pop = block
     end
 
+    def on_error(&block)
+      @on_error = block
+    end
+
     def work
-      item = @queue.pop
-      @on_pop.call(item) if item
+      job = Job.new(@queue.pop)
+      @on_pop.call(job) if job.call?
+    rescue Exception => exception
+      @on_error.call(job, exception)
     end
 
     def start
@@ -40,6 +57,10 @@ module QueueKit
 
     def working?
       !@stopped
+    end
+
+    def default_on_error(job, exception)
+      raise exception
     end
   end
 end
