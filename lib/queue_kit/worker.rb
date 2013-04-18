@@ -56,6 +56,10 @@ module QueueKit
       @on_error.call(exception)
     end
 
+    def name
+      @name ||= "#{self.class} #{Socket.gethostname}:#{Process.pid}"
+    end
+
     def start
       if !@on_pop
         raise "Needs something to do with an item.  Set #on_pop"
