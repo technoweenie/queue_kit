@@ -16,6 +16,6 @@ Note: This is still considered alpha until QueueKit v0.1.0.
 ## Shout outs
 
 * Resque
-* @jnunemaker
-* @lindvall
+* John Nunemaker
+* Eric Lindvall
 
