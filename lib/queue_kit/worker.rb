@@ -46,10 +46,12 @@ module QueueKit
     end
 
     def work
-      item = @queue.pop
+      wrap_error { work! }
+    end
 
-      if item
-        wrap_error { @processor.call(item) }
+    def work!
+      if item = @queue.pop
+        @processor.call(item)
       else
         @cooler.call
       end
