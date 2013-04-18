@@ -3,7 +3,7 @@ module QueueKit
     def initialize(queue, options = {})
       @queue = queue
       @processor = options.fetch(:processor) {}
-      @on_error = options.fetch(:on_error) { lambda { |e| raise e } }
+      @error_handler = options.fetch(:error_handler) { lambda { |e| raise e } }
       @after_work = options.fetch(:after_work) { lambda {} }
       @instrumenter = options.fetch(:instrumenter) { PutsInstrumenter.new }
       @stopped = true
@@ -31,10 +31,6 @@ module QueueKit
       debug { ["worker.procline", {:message => string}] }
     end
 
-    def on_error(&block)
-      @on_error = block
-    end
-
     def after_work(&block)
       @after_work = block
     end
@@ -49,7 +45,7 @@ module QueueKit
     def handle_error
       yield
     rescue Exception => exception
-      @on_error.call(exception)
+      @error_handler.call(exception)
     end
 
     def name

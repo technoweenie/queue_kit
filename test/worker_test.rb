@@ -21,21 +21,22 @@ class WorkerTest < Test::Unit::TestCase
     assert_equal [1, 2], queue
   end
 
-  def test_custom_on_error
-    worker = new_worker [1], :processor => lambda { |item| raise 'booya' }
-
+  def test_custom_on_error_handler
     called = false
-    worker.on_error do |exc|
+    error_handler = lambda do |exc|
       called = true
       assert_equal 'booya', exc.message
     end
+
+    worker = new_worker [1], :processor => lambda { |item| raise 'booya' },
+      :error_handler => error_handler
 
     worker.work
 
     assert called
   end
 
-  def test_default_on_error
+  def test_default_error_handler
     processor = lambda do |item|
       raise item.to_s
     end
