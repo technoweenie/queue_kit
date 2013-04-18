@@ -1,6 +1,17 @@
 require File.expand_path("../helper", __FILE__)
 
 class WorkerTest < Test::Unit::TestCase
+  def test_cooler
+    cooled = false
+    cooler = lambda { cooled = true }
+
+    worker = new_worker [], :processor => lambda { |_| fail 'item found?' },
+      :cooler => cooler
+
+    worker.work
+    assert cooled
+  end
+
   def test_custom_on_error_handler
     called = false
     error_handler = lambda do |exc|
@@ -8,7 +19,7 @@ class WorkerTest < Test::Unit::TestCase
       assert_equal 'booya', exc.message
     end
 
-    worker = new_worker [1], :processor => lambda { |item| raise 'booya' },
+    worker = new_worker [1], :processor => lambda { |_| raise 'booya' },
       :error_handler => error_handler
 
     worker.work

@@ -3,6 +3,7 @@ module QueueKit
     def initialize(queue, options = {})
       @queue = queue
       @processor = options.fetch(:processor) {}
+      @cooler = options.fetch(:cooler) { lambda {} }
       @error_handler = options.fetch(:error_handler) { lambda { |e| raise e } }
       @instrumenter = options.fetch(:instrumenter) { PutsInstrumenter.new }
       @stopped = true
@@ -31,8 +32,11 @@ module QueueKit
 
     def work
       handle_error do
-        item = @queue.pop
-        @processor.call(item) if item
+        if item = @queue.pop
+          @processor.call(item)
+        else
+          @cooler.call
+        end
       end
     end
 
