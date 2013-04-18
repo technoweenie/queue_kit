@@ -25,7 +25,8 @@ class RoundRobinShufflerTest < Test::Unit::TestCase
 
     set_clients 1, 2
 
-    value = client_command_with_retries 3 do |client|
+    value = client_command_with_retries 3 do |client, attempts|
+      assert_equal clients.size, attempts
       clients << client
       client == 2 ? :booya : nil
     end

@@ -17,7 +17,7 @@ module QueueKit
         attempts = 0
 
         while attempts < retries
-          if data = (yield client)
+          if data = (yield client, attempts)
             return data
           end
 
