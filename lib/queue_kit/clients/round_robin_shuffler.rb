@@ -17,13 +17,15 @@ module QueueKit
         attempts = 0
 
         while attempts < retries
-          if data = yield client
+          if data = (yield client)
             return data
           end
 
           rotate_client
           attempts += 1
         end
+
+        nil
       end
 
       def client
@@ -37,7 +39,7 @@ module QueueKit
       end
 
       def round_robin_from(options)
-        @commands_per_server = options[:commands_per_client] || 100
+        @commands_per_client = options[:commands_per_client] || 100
       end
 
       def rotate_client
