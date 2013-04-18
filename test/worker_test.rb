@@ -4,12 +4,10 @@ class WorkerTest < Test::Unit::TestCase
   def test_after_work
     items = []
     queue = [1,2,3,4,5]
+    processor = lambda { |item| items << item }
     calls = 0
-    worker = new_worker queue
 
-    worker.on_pop do |item|
-      items << item
-    end
+    worker = new_worker queue, :processor => processor
 
     worker.after_work do
       calls += 1
@@ -24,10 +22,7 @@ class WorkerTest < Test::Unit::TestCase
   end
 
   def test_custom_on_error
-    worker = new_worker [1]
-    worker.on_pop do |item|
-      raise 'booya'
-    end
+    worker = new_worker [1], :processor => lambda { |item| raise 'booya' }
 
     called = false
     worker.on_error do |exc|
@@ -41,10 +36,11 @@ class WorkerTest < Test::Unit::TestCase
   end
 
   def test_default_on_error
-    worker = new_worker [1]
-    worker.on_pop do |item|
+    processor = lambda do |item|
       raise item.to_s
     end
+
+    worker = new_worker [1], :processor => processor
 
     begin
       worker.work
@@ -57,27 +53,28 @@ class WorkerTest < Test::Unit::TestCase
 
   def test_breaks_when_stopped
     called = false
-    worker = new_worker [1, nil]
+    worker = nil
 
-    worker.on_pop do |item|
+    processor = lambda do |item|
       fail "callback called multiple times" if called
       assert_equal 1, item
       called = true
       worker.stop
     end
 
+    worker = new_worker [1, nil], :processor => processor
     worker.run
 
     assert called
   end
 
-  def test_needs_on_pop_callback_to_work
+  def test_needs_processor_callback_to_work
     worker = new_worker
     assert_raises RuntimeError do
       worker.start
     end
 
-    worker.on_pop { puts 'hi' }
+    worker = new_worker [], :processor => lambda { puts 'hi' }
     assert !worker.working?
     worker.start
     assert worker.working?

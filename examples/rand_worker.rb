@@ -6,10 +6,10 @@ def queue.pop
   rand 10
 end
 
-worker = QueueKit::Worker.new queue, :debug => ENV['DEBUG'] == '1'
-worker.on_pop do |num|
-  puts num
-end
+processor = lambda { |num| puts num }
+
+worker = QueueKit::Worker.new queue, :debug => ENV['DEBUG'] == '1',
+  :processor => processor
 
 worker.after_work { sleep 1 }
 

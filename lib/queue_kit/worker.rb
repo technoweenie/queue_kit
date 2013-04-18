@@ -2,7 +2,7 @@ module QueueKit
   class Worker
     def initialize(queue, options = {})
       @queue = queue
-      @on_pop = options.fetch(:on_pop) {}
+      @processor = options.fetch(:processor) {}
       @on_error = options.fetch(:on_error) { lambda { |e| raise e } }
       @after_work = options.fetch(:after_work) { lambda {} }
       @instrumenter = options.fetch(:instrumenter) { PutsInstrumenter.new }
@@ -31,10 +31,6 @@ module QueueKit
       debug { ["worker.procline", {:message => string}] }
     end
 
-    def on_pop(&block)
-      @on_pop = block
-    end
-
     def on_error(&block)
       @on_error = block
     end
@@ -46,7 +42,7 @@ module QueueKit
     def work
       handle_error do
         item = @queue.pop
-        @on_pop.call(item) if item
+        @processor.call(item) if item
       end
     end
 
@@ -61,8 +57,8 @@ module QueueKit
     end
 
     def start
-      if !@on_pop
-        raise "Needs something to do with an item.  Set #on_pop"
+      if !@processor
+        raise "Needs something to do with an item.  Set #processor"
       end
 
       instrument "worker.start"
