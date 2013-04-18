@@ -41,7 +41,7 @@ module QueueKit
     end
 
     def procline(string)
-      $0 = "QueueKit-#{QueueKit::Version}: #{string}"
+      $0 = "QueueKit-#{QueueKit::VERSION}: #{string}"
       debug { ["worker.procline", {:message => string}] }
     end
 
@@ -51,7 +51,9 @@ module QueueKit
 
     def work!
       if item = @queue.pop
+        set_working_procline
         @processor.call(item)
+        set_popping_procline
       else
         @cooler.call
       end
@@ -69,6 +71,7 @@ module QueueKit
 
     def start
       instrument "worker.start"
+      set_popping_procline
       @stopped = false
     end
 
@@ -84,6 +87,15 @@ module QueueKit
     def instrument(name, payload = nil)
       (payload ||= {}).update(:worker => self)
       @instrumenter.instrument("queuekit.#{name}", payload)
+    end
+
+    def set_working_procline
+      procline("Processing since #{Time.now.to_i}")
+    end
+
+    def set_popping_procline
+      @last_job_at = Time.now
+      procline("Waiting since #{@last_job_at.to_i}")
     end
 
     def force_debug
