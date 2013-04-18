@@ -1,7 +1,7 @@
 module QueueKit
   class Worker
-    def initialize(options = {})
-      @queue = options.fetch(:queue) { [] }
+    def initialize(queue, options = {})
+      @queue = queue
       @on_pop = options.fetch(:on_pop) {}
       @on_error = options.fetch(:on_error) { lambda { |e| raise e } }
       @after_work = options.fetch(:after_work) { lambda {} }

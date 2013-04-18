@@ -5,7 +5,7 @@ class WorkerTest < Test::Unit::TestCase
     items = []
     queue = [1,2,3,4,5]
     calls = 0
-    worker = new_worker :queue => queue
+    worker = new_worker queue
 
     worker.on_pop do |item|
       items << item
@@ -24,7 +24,7 @@ class WorkerTest < Test::Unit::TestCase
   end
 
   def test_custom_on_error
-    worker = new_worker :queue => [1]
+    worker = new_worker [1]
     worker.on_pop do |item|
       raise 'booya'
     end
@@ -41,7 +41,7 @@ class WorkerTest < Test::Unit::TestCase
   end
 
   def test_default_on_error
-    worker = new_worker :queue => [1]
+    worker = new_worker [1]
     worker.on_pop do |item|
       raise item.to_s
     end
@@ -57,7 +57,7 @@ class WorkerTest < Test::Unit::TestCase
 
   def test_breaks_when_stopped
     called = false
-    worker = new_worker :queue => [1, nil]
+    worker = new_worker [1, nil]
 
     worker.on_pop do |item|
       fail "callback called multiple times" if called
@@ -87,9 +87,9 @@ class WorkerTest < Test::Unit::TestCase
     assert !new_worker.working?
   end
 
-  def new_worker(options = {})
+  def new_worker(queue = [], options = {})
     options[:instrumenter] ||= NullInstrumenter.new
-    QueueKit::Worker.new(options)
+    QueueKit::Worker.new(queue, options)
   end
 
   class NullInstrumenter
