@@ -4,6 +4,21 @@ QueueKit.require_lib 'clients/command_timeout'
 class CommandTimeoutTest < Test::Unit::TestCase
   include QueueKit::Clients::CommandTimeout
 
+  def test_with_ivars
+    object = FakeQueue.new
+    assert_nil object.command_timeout_ms
+    assert_nil object.max_command_timeout_ms
+
+    object.command_timeout_from({})
+    assert_equal 10, object.command_timeout_ms
+    assert_equal 1000, object.max_command_timeout_ms
+
+    object.command_timeout_from \
+      :command_timeout_ms => 1, :max_command_timeout_ms => 2
+    assert_equal 1, object.command_timeout_ms
+    assert_equal 2, object.max_command_timeout_ms
+  end
+
   def test_gets_timeout_for_first_attempt
     assert_equal 10, command_timeout(attempts=0)
   end
@@ -15,6 +30,10 @@ class CommandTimeoutTest < Test::Unit::TestCase
 
   def test_enforces_max_timeout
     assert_equal 1000, command_timeout(attempts=1000)
+  end
+
+  class FakeQueue
+    QueueKit::Clients::CommandTimeout.with_ivars(self)
   end
 end
 
