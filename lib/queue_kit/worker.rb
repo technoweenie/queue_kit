@@ -1,10 +1,10 @@
 module QueueKit
-  class Worker
+  module Worker
     def initialize(queue, options = {})
       @queue = queue
-      @processor = options.fetch(:processor) {}
-      @cooler = options.fetch(:cooler) { lambda {} }
-      @error_handler = options.fetch(:error_handler) { lambda { |e| raise e } }
+      @processor = options.fetch(:processor) { method(:process) }
+      @cooler = options.fetch(:cooler) { method(:cool) }
+      @error_handler = options.fetch(:error_handler) { method(:handle_error) }
       @instrumenter = options.fetch(:instrumenter) { PutsInstrumenter.new }
       @stopped = true
 
@@ -13,6 +13,21 @@ module QueueKit
           alias debug force_debug
         end
       end
+    end
+
+    def process(item)
+      raise NotImplementedError, "This worker can't do anything with #{item.inspect}"
+    end
+
+    def cool
+    end
+
+    def handle_error(err)
+      raise err
+    end
+
+    def trap(signal_handler)
+      SignalChecker.trap(self, signal_handler)
     end
 
     def run
@@ -31,16 +46,16 @@ module QueueKit
     end
 
     def work
-      handle_error do
-        if item = @queue.pop
-          @processor.call(item)
-        else
-          @cooler.call
-        end
+      item = @queue.pop
+
+      if item
+        wrap_error { @processor.call(item) }
+      else
+        @cooler.call
       end
     end
 
-    def handle_error
+    def wrap_error
       yield
     rescue Exception => exception
       @error_handler.call(exception)
@@ -51,10 +66,6 @@ module QueueKit
     end
 
     def start
-      if !@processor
-        raise "Needs something to do with an item.  Set #processor"
-      end
-
       instrument "worker.start"
       @stopped = false
     end

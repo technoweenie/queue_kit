@@ -6,12 +6,17 @@ def queue.pop
   rand 10
 end
 
-processor = lambda { |num| sleep 1; puts num }
+class Worker
+  include QueueKit::Worker
 
-worker = QueueKit::Worker.new queue, :debug => ENV['DEBUG'] == '1',
-  :processor => processor
+  def process(item)
+    sleep 1
+    puts item
+  end
+end
 
-QueueKit::SignalChecker.trap(worker, QueueKit::GracefulQuit)
+worker = Worker.new queue, :debug => ENV['DEBUG'] == '1'
+worker.trap QueueKit::GracefulQuit
 
 puts "Starting on #{Process.pid}..."
 worker.run

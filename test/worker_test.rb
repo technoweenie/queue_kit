@@ -60,25 +60,17 @@ class WorkerTest < Test::Unit::TestCase
     assert called
   end
 
-  def test_needs_processor_callback_to_work
-    worker = new_worker
-    assert_raises RuntimeError do
-      worker.start
-    end
-
-    worker = new_worker [], :processor => lambda { puts 'hi' }
-    assert !worker.working?
-    worker.start
-    assert worker.working?
-  end
-
   def test_new_worker_is_not_working
     assert !new_worker.working?
   end
 
   def new_worker(queue = [], options = {})
     options[:instrumenter] ||= NullInstrumenter.new
-    QueueKit::Worker.new(queue, options)
+    Worker.new(queue, options)
+  end
+
+  class Worker
+    include QueueKit::Worker
   end
 
   class NullInstrumenter
