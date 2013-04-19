@@ -1,5 +1,5 @@
 module QueueKit
-  VERSION = "0.0.7"
+  VERSION = "0.0.8"
   ROOT = File.expand_path("../queue_kit", __FILE__)
 
   def self.require_lib(*libs)
