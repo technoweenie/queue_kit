@@ -3,12 +3,13 @@ require File.expand_path("../helper", __FILE__)
 class WorkerTest < Test::Unit::TestCase
   def test_cooler
     cooled = false
-    cooler = lambda { cooled = true }
+    worker = nil
+    cooler = lambda { worker.stop;cooled = true }
 
     worker = new_worker [], :processor => lambda { |_| fail 'item found?' },
       :cooler => cooler
 
-    worker.work
+    worker.run
     assert cooled
   end
 

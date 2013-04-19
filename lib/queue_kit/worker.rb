@@ -35,7 +35,8 @@ module QueueKit
       interval_debugger = lambda { "worker.interval" }
 
       loop do
-        working? ? work : break
+        work
+        break unless working?
         debug(&interval_debugger)
       end
     end
@@ -55,7 +56,7 @@ module QueueKit
         @processor.call(item)
         set_popping_procline
       else
-        @cooler.call
+        @cooler.call if working?
       end
     end
 
