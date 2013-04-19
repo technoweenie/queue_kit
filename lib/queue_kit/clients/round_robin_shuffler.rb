@@ -3,12 +3,9 @@ module QueueKit
     module RoundRobinShuffler
       include QueueKit::Instrumentable
 
-      def self.with_ivars(klass)
-        mod = self
+      def self.included(klass)
+        super(klass)
         klass.class_eval do
-          include mod
-          attr_accessor :commands_per_client
-
           def command_clients_size
             @clients.size
           end
@@ -41,7 +38,7 @@ module QueueKit
       end
 
       def round_robin_from(options)
-        @commands_per_client = options[:commands_per_client] || 100
+        @commands_per_client = options[:commands_per_client]
       end
 
       def rotate_client
@@ -60,7 +57,7 @@ module QueueKit
       end
 
       def commands_per_client
-        100
+        @commands_per_client ||= 100
       end
 
       def clients

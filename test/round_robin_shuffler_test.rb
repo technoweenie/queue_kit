@@ -37,7 +37,7 @@ class RoundRobinShufflerTest < Test::Unit::TestCase
 
   def test_with_ivars
     object = FakeQueue.new
-    assert_nil object.commands_per_client
+    assert_equal 100, object.commands_per_client
 
     object.round_robin_from({})
     assert_equal 100, object.commands_per_client
@@ -73,7 +73,7 @@ class RoundRobinShufflerTest < Test::Unit::TestCase
   end
 
   class FakeQueue
-    QueueKit::Clients::RoundRobinShuffler.with_ivars(self)
+    include QueueKit::Clients::RoundRobinShuffler
 
     def default_instrumenter
       NullInstrumenter.new

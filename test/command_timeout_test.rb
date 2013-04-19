@@ -6,8 +6,8 @@ class CommandTimeoutTest < Test::Unit::TestCase
 
   def test_with_ivars
     object = FakeQueue.new
-    assert_nil object.command_timeout_ms
-    assert_nil object.max_command_timeout_ms
+    assert_equal 10, object.command_timeout_ms
+    assert_equal 1000, object.max_command_timeout_ms
 
     object.command_timeout_from({})
     assert_equal 10, object.command_timeout_ms
@@ -33,7 +33,7 @@ class CommandTimeoutTest < Test::Unit::TestCase
   end
 
   class FakeQueue
-    QueueKit::Clients::CommandTimeout.with_ivars(self)
+    include QueueKit::Clients::CommandTimeout
   end
 end
 
