@@ -1,16 +1,20 @@
 module QueueKit
   module Instrumentable
     def instrumenter_from(options)
-      @instrumenter = options.fetch(:instrumenter) { default_instrumenter }
+      @instrumenter = options[:instrumenter]
       if options.fetch(:debug) { false }
         enable_debug_mode
       end
     end
 
+    def instrumenter
+      @instrumenter ||= default_instrumenter
+    end
+
     def instrument(name, payload = nil)
       options = default_instrument_options
       options.update(payload) if payload
-      @instrumenter.instrument("queuekit.#{name}", options)
+      instrumenter.instrument("queuekit.#{name}", options)
     end
 
     def force_debug

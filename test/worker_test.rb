@@ -73,10 +73,5 @@ class WorkerTest < Test::Unit::TestCase
   class Worker
     include QueueKit::Worker
   end
-
-  class NullInstrumenter
-    def instrument(name, payload = nil)
-    end
-  end
 end
 

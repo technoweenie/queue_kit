@@ -74,6 +74,14 @@ class RoundRobinShufflerTest < Test::Unit::TestCase
 
   class FakeQueue
     QueueKit::Clients::RoundRobinShuffler.with_ivars(self)
+
+    def default_instrumenter
+      NullInstrumenter.new
+    end
+  end
+
+  def default_instrumenter
+    NullInstrumenter.new
   end
 end
 

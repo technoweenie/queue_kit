@@ -1,6 +1,8 @@
 module QueueKit
   module Clients
     module RoundRobinShuffler
+      include QueueKit::Instrumentable
+
       def self.with_ivars(klass)
         mod = self
         klass.class_eval do
@@ -35,7 +37,7 @@ module QueueKit
           rotate_client
         end
 
-        clients[@client_index]
+        @current_client
       end
 
       def round_robin_from(options)
@@ -43,6 +45,7 @@ module QueueKit
       end
 
       def rotate_client
+        instrument "worker.rotate_client"
         @client_index ||= -1
         @client_len ||= clients.size
 
@@ -52,6 +55,8 @@ module QueueKit
         if @client_index >= @client_len
           @client_index = 0
         end
+
+        @current_client = clients[@client_index]
       end
 
       def commands_per_client
