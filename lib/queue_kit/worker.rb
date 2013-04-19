@@ -90,6 +90,10 @@ module QueueKit
       @last_job_at = Time.now
       procline("Waiting since #{@last_job_at.to_i}")
     end
+
+    def default_instrument_options
+      {:worker => self}
+    end
   end
 end
 

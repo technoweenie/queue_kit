@@ -8,7 +8,7 @@ module QueueKit
     end
 
     def instrument(name, payload = nil)
-      options = default_instrument_options.dup
+      options = default_instrument_options
       options.update(payload) if payload
       @instrumenter.instrument("queuekit.#{name}", options)
     end
@@ -27,7 +27,7 @@ module QueueKit
     end
 
     def default_instrument_options
-      {:worker => self}
+      {}
     end
 
     def default_instrumenter
