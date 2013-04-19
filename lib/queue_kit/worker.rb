@@ -23,7 +23,7 @@ module QueueKit
       raise err
     end
 
-    def trap(signal_handler)
+    def trap_signals(signal_handler)
       SignalChecker.trap(self, signal_handler)
     end
 
