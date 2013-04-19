@@ -42,7 +42,7 @@ module QueueKit
       end
 
       def rotate_client
-        instrument "worker.rotate_client"
+        instrument "queue.rotate_client"
         @client_index ||= -1
         @client_len ||= clients.size
 
