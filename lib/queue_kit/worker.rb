@@ -1,18 +1,15 @@
 module QueueKit
   module Worker
+    include Instrumentable
+
     def initialize(queue, options = {})
       @queue = queue
       @processor = options.fetch(:processor) { method(:process) }
       @cooler = options.fetch(:cooler) { method(:cool) }
       @error_handler = options.fetch(:error_handler) { method(:handle_error) }
-      @instrumenter = options.fetch(:instrumenter) { PutsInstrumenter.new }
       @stopped = true
 
-      if options.fetch(:debug) { false }
-        class << self
-          alias debug force_debug
-        end
-      end
+      instrumenter_from(options)
     end
 
     def process(item)
@@ -85,11 +82,6 @@ module QueueKit
       !@stopped
     end
 
-    def instrument(name, payload = nil)
-      (payload ||= {}).update(:worker => self)
-      @instrumenter.instrument("queuekit.#{name}", payload)
-    end
-
     def set_working_procline
       procline("Processing since #{Time.now.to_i}")
     end
@@ -97,19 +89,6 @@ module QueueKit
     def set_popping_procline
       @last_job_at = Time.now
       procline("Waiting since #{@last_job_at.to_i}")
-    end
-
-    def force_debug
-      instrument(*yield)
-    end
-
-    def debug
-    end
-
-    class PutsInstrumenter
-      def instrument(name, payload = nil)
-        puts "[#{Time.now}] #{name}: #{payload.inspect}"
-      end
     end
   end
 end

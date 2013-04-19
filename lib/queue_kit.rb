@@ -12,6 +12,6 @@ module QueueKit
     alias require_libs require_lib
   end
 
-  require_lib "worker"
+  require_lib "instrumentable", "worker"
 end
 
