@@ -36,7 +36,6 @@ module QueueKit
       debug :setup, sig
 
       old_handler = trap sig do
-        debug :trap, sig
         @handler.send(trap_method, @worker)
         old_handler.call if old_handler.respond_to?(:call)
       end
