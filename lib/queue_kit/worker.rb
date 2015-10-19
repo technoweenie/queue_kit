@@ -68,13 +68,11 @@ module QueueKit
     end
 
     def start
-      instrument "worker.start"
       set_popping_procline
       @stopped = false
     end
 
     def stop
-      instrument "worker.stop"
       @stopped = true
     end
 
